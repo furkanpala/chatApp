@@ -1,9 +1,15 @@
 import React from "react";
-import { Paper, List, ListItem, ListItemText } from "@material-ui/core";
+import {
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction
+} from "@material-ui/core";
 import { Consumer } from "../context";
 import { makeStyles } from "@material-ui/core/styles";
 import ConversationCreateDialog from "./conversationCreateDialog";
-
+import Delete from "./deleteConfirmation";
 const useStyles = makeStyles(theme => ({
   paper: {
     backgroundColor: theme.palette.background.default,
@@ -22,14 +28,17 @@ const Dashboard = () => {
         <Paper className={classes.paper}>
           <h1>Welcome {authenticatedUser.username}</h1>
           <ConversationCreateDialog />
-          {conversationList === -1 ? (
-            <h1>You do not have conversations</h1>
+          {conversationList === -1 ? null : conversationList.length === 0 ? (
+            <h1>You do not have any conversations</h1>
           ) : (
             <List component="nav">
-              {conversationList.map(conversation => {
+              {conversationList.map(({ name, _id }) => {
                 return (
-                  <ListItem key={conversation._id} button divider>
-                    <ListItemText primary={conversation.name} />
+                  <ListItem key={_id} button divider>
+                    <ListItemText primary={name} />
+                    <ListItemSecondaryAction>
+                      <Delete name={name} id={_id} />
+                    </ListItemSecondaryAction>
                   </ListItem>
                 );
               })}

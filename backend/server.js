@@ -7,7 +7,7 @@ const cors = require("cors")
 const mongoose = require("mongoose");
 const User = require("./models/user.model");
 const Conversation = require("./models/conversation.model");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -23,8 +23,8 @@ passport.deserializeUser((id, done) => {
 });
 
 passport.use(new LocalStrategy({
-    usernameField: 'loginUsername',
-    passwordField: 'loginPassword',
+    usernameField: "loginUsername",
+    passwordField: "loginPassword",
 }, (username, password, done) => {
     User.findOne({
         username: username
@@ -169,7 +169,7 @@ app.post("/createConversation", (req, res) => {
         name: conversationName,
         description: conversationDescription,
         members: [user._id],
-        admins: [user._id]
+        admin: user._id
     })
     newConversation.save().then(() => res.json({
         conversationCreated: true
@@ -180,19 +180,24 @@ app.post("/createConversation", (req, res) => {
 
 app.get("/getConversationList", (req, res) => {
     if (req.user) {
-        Conversation.find().then(conversations => {
-            const conversationList = conversations.filter(conversation => {
-                return conversation.members.map(id => id.equals(req.user._id));
-            });
+        Conversation.find().then(allConversations => {
+            const filteredConversations = allConversations.filter(conversation => conversation.members.some(member => member.equals(req.user._id)));
             res.json({
-                conversationList
+                conversations: filteredConversations
             });
-        });
-    } else {
-        res.status(401).json({
-            conversationList: null
         })
     }
+});
+
+app.post("/deleteConversation", (req, res) => {
+    const {
+        id
+    } = req.body;
+    Conversation.findByIdAndDelete(id).then(conversation => conversation ? res.json({
+        deleted: true
+    }) : res.json({
+        deleted: false
+    })).catch(err => console.log(err));
 });
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

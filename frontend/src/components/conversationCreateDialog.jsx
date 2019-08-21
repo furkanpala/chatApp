@@ -18,19 +18,9 @@ const ConversationCreateDialog = () => {
         onChange,
         handleConverstaionCrate,
         validationErrors,
-        errors,
-        getConversationList
+        errors
       }) => (
         <>
-          {/* TODO: SİL */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={getConversationList}
-          >
-            Get All Conversations
-          </Button>
-          {/* TODO: SİL */}
           <Button
             variant="contained"
             color="primary"

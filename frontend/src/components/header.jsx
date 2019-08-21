@@ -20,7 +20,11 @@ const Header = () => {
               Photos
             </Typography>
             {authenticatedUser ? (
-              <Button onClick={handleLogout} color="inherit">
+              <Button
+                onClick={handleLogout}
+                variant="outlined"
+                color="secondary"
+              >
                 Logout
               </Button>
             ) : null}

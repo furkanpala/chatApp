@@ -44,7 +44,8 @@ class App extends Component {
       conversationCreateDialogStatus: false,
       conversationName: "",
       conversationDescription: "",
-      conversationList: -1
+      conversationList: [],
+      deleteConfirmationStatus: false
     };
   }
 
@@ -53,6 +54,10 @@ class App extends Component {
       this.setState({
         authenticatedUser: user
       });
+      const { authenticatedUser } = this.state;
+      if (authenticatedUser) {
+        this.getConversationList(true);
+      }
     });
   }
 
@@ -195,6 +200,7 @@ class App extends Component {
             this.setState({
               authenticatedUser: res.data.user
             });
+            this.getConversationList(true);
           }
         })
         .catch(err => {
@@ -218,7 +224,8 @@ class App extends Component {
   handleLogout = () => {
     axios.get("/logout").then(res => {
       this.setState({
-        authenticatedUser: res.data.user
+        authenticatedUser: res.data.user,
+        conversationList: []
       });
     });
   };
@@ -249,7 +256,7 @@ class App extends Component {
       };
       axios.post("/createConversation", conversation).then(res => {
         if (res.data.conversationCreated) {
-          this.getConversationList();
+          this.getConversationList(false);
         }
       });
       this.setState({
@@ -261,13 +268,27 @@ class App extends Component {
     }
   };
 
-  getConversationList = () => {
-    axios.get("/getConversationList").then(res => {
-      const { conversationList } = res.data;
+  getConversationList = delay => {
+    if (delay) {
       this.setState({
-        conversationList: conversationList
+        conversationList: -1
+      });
+    }
+    axios.get("/getConversationList").then(res => {
+      const { conversations } = res.data;
+      this.setState({
+        conversationList: conversations
       });
     });
+  };
+
+  handleDeleteConfirmation = id => {
+    axios
+      .post("/deleteConversation", { id })
+      .then(({ data: { deleted } }) =>
+        deleted ? this.getConversationList(false) : null
+      )
+      .catch(err => console.log(err));
   };
 
   render() {
@@ -287,7 +308,8 @@ class App extends Component {
               whichSnackbar: this.whichSnackbar,
               handleConverstaionDialog: this.handleConverstaionDialog,
               handleConverstaionCrate: this.handleConverstaionCrate,
-              getConversationList: this.getConversationList
+              getConversationList: this.getConversationList,
+              handleDeleteConfirmation: this.handleDeleteConfirmation
             }}
           >
             <ThemeProvider theme={theme}>

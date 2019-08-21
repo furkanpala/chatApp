@@ -21,10 +21,10 @@ const ConversationSchema = new Schema({
     messages: {
         type: Array
     },
-    admins: [{
+    admin: {
         type: Schema.Types.ObjectId,
         ref: "User"
-    }]
+    }
 }, {
     timestamps: true
 });

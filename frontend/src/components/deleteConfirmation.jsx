@@ -7,7 +7,7 @@ import { Consumer } from "../context";
 
 const Delete = ({ name, id }) => {
   const [open, setOpen] = useState(false);
-  const [confirmationName, onChange] = useState("");
+  const [confirmationName, handleChange] = useState("");
   const [error, setError] = useState(false);
   return (
     <Consumer>
@@ -17,7 +17,7 @@ const Delete = ({ name, id }) => {
             <>
               <TextField
                 placeholder="Type conversation name"
-                onChange={e => onChange(e.target.value)}
+                onChange={e => handleChange(e.target.value)}
                 error={error}
                 autoFocus
               />
@@ -26,7 +26,7 @@ const Delete = ({ name, id }) => {
                 onClick={() => {
                   if (confirmationName === name) {
                     handleDeleteConfirmation(id);
-                    onChange("");
+                    handleChange("");
                     setOpen(!open);
                     setError(false);
                   } else {
@@ -40,7 +40,7 @@ const Delete = ({ name, id }) => {
                 edge="end"
                 onClick={() => {
                   setOpen(!open);
-                  onChange("");
+                  handleChange("");
                   setError(false);
                 }}
               >
@@ -51,7 +51,7 @@ const Delete = ({ name, id }) => {
             <IconButton
               onClick={() => {
                 setOpen(!open);
-                onChange("");
+                handleChange("");
                 setError(false);
               }}
               edge="end"

@@ -12,6 +12,7 @@ import { Provider } from "./context";
 import axios from "axios";
 import DashboardRoute from "./routes/dashboardRoute";
 import HomeRoute from "./routes/homeRoute";
+import Chat from "./components/chat";
 
 // prettier-ignore
 const errors = [
@@ -56,7 +57,7 @@ class App extends Component {
       });
       const { authenticatedUser } = this.state;
       if (authenticatedUser) {
-        this.getConversationList(true);
+        this.getConversationList();
       }
     });
   }
@@ -200,7 +201,7 @@ class App extends Component {
             this.setState({
               authenticatedUser: res.data.user
             });
-            this.getConversationList(true);
+            this.getConversationList();
           }
         })
         .catch(err => {
@@ -256,7 +257,7 @@ class App extends Component {
       };
       axios.post("/createConversation", conversation).then(res => {
         if (res.data.conversationCreated) {
-          this.getConversationList(false);
+          this.getConversationList();
         }
       });
       this.setState({
@@ -268,25 +269,25 @@ class App extends Component {
     }
   };
 
-  getConversationList = delay => {
-    if (delay) {
-      this.setState({
-        conversationList: -1
-      });
-    }
-    axios.get("/getConversationList").then(res => {
-      const { conversations } = res.data;
-      this.setState({
-        conversationList: conversations
-      });
+  getConversationList = () => {
+    this.setState({
+      conversationList: -1
     });
+    setTimeout(() => {
+      axios.get("/getConversationList").then(res => {
+        const { conversations } = res.data;
+        this.setState({
+          conversationList: conversations
+        });
+      });
+    }, 1000);
   };
 
   handleDeleteConfirmation = id => {
     axios
       .post("/deleteConversation", { id })
       .then(({ data: { deleted } }) =>
-        deleted ? this.getConversationList(false) : null
+        deleted ? this.getConversationList() : null
       )
       .catch(err => console.log(err));
   };
@@ -314,10 +315,18 @@ class App extends Component {
           >
             <ThemeProvider theme={theme}>
               <Header />
-              <Container maxWidth={"lg"}>
+              <Container
+                maxWidth={"lg"}
+                style={{
+                  flexGrow: "1",
+                  display: "flex",
+                  flexDirection: "column"
+                }}
+              >
                 <Switch>
                   <HomeRoute path="/" exact component={Home} />
                   <DashboardRoute path="/dashboard" component={Dashboard} />
+                  <Route path="/chat" component={Chat} />
                   <Route component={notFound} />
                 </Switch>
               </Container>

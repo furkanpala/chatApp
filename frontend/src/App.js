@@ -183,7 +183,7 @@ class App extends Component {
             });
           }
         })
-        .catch(err => console.log(err)); // TODO: Remove console.log
+        .catch(err => console.log(err));
     }
   };
 

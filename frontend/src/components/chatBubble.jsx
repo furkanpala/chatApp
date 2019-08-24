@@ -23,6 +23,16 @@ const useStyles = makeStyles(theme => ({
     },
     flex: "none"
   },
+  cardContent: {
+    display: "flex",
+    flexDirection: "column"
+  },
+  messageArea: {
+    marginTop: 10,
+    padding: 10,
+    borderStyle: "solid",
+    borderRadius: 4
+  },
   ownMessageArea: {
     borderColor: "#d0d0d0",
     backgroundColor: "#f0f0f0"
@@ -30,6 +40,34 @@ const useStyles = makeStyles(theme => ({
   otherMessageArea: {
     borderColor: "#bbcfff8c",
     backgroundColor: "#f3f6ff"
+  },
+  infoBox: {
+    display: "flex",
+    alignItems: "center",
+    flexGrow: 1
+  },
+  iconButton: {
+    padding: 0
+  },
+  username: {
+    marginLeft: 10,
+    marginRight: 10
+  },
+  mobileInfoBox: {
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "row-reverse"
+    }
+  },
+  mobileInnerInfoBox: {
+    [theme.breakpoints.down("xs")]: {
+      flexGrow: 0,
+      flexDirection: "row-reverse"
+    }
+  },
+  mobileDate: {
+    [theme.breakpoints.down("xs")]: {
+      flexGrow: 1
+    }
   }
 }));
 
@@ -37,26 +75,33 @@ const ChatBubble = ({ own }) => {
   const classes = useStyles();
   return (
     <Card className={`${own ? classes.own : classes.other} ${classes.bubble}`}>
-      <CardContent style={{ display: "flex", flexDirection: "column" }}>
-        <Box style={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-          <Box style={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
-            <IconButton style={{ padding: 0 }}>
+      <CardContent className={classes.cardContent}>
+        <Box
+          className={`${classes.infoBox} ${own ? classes.mobileInfoBox : null}`}
+        >
+          <Box
+            className={`${classes.infoBox} ${
+              own ? classes.mobileInnerInfoBox : null
+            }`}
+          >
+            <IconButton className={classes.iconButton}>
               <Avatar>F</Avatar>
             </IconButton>
-            <Typography color="textSecondary" style={{ marginLeft: 10 }}>
+            <Typography color="textSecondary" className={classes.username}>
               fpala
             </Typography>
           </Box>
-          <Typography color="textSecondary">2 days ago</Typography>
+          <Typography
+            color="textSecondary"
+            className={own ? classes.mobileDate : null}
+          >
+            2 days ago
+          </Typography>
         </Box>
         <Box
-          style={{
-            marginTop: 10,
-            padding: 10,
-            borderStyle: "solid",
-            borderRadius: 4
-          }}
-          className={own ? classes.ownMessageArea : classes.otherMessageArea}
+          className={`${
+            own ? classes.ownMessageArea : classes.otherMessageArea
+          } ${classes.messageArea}`}
         >
           asd
         </Box>

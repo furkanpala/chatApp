@@ -165,17 +165,32 @@ app.post("/createConversation", (req, res) => {
         conversationDescription
     } = req.body;
     const user = req.user;
-    const newConversation = new Conversation({
-        name: conversationName,
-        description: conversationDescription,
-        members: [user._id],
-        admin: user._id
+    Conversation.exists({
+        name: conversationName
+    }).then(exists => {
+        if (!exists) {
+            const newConversation = new Conversation({
+                name: conversationName,
+                description: conversationDescription,
+                members: [user._id],
+                admin: user._id
+            })
+            newConversation.save().then(() => res.json({
+                conversationCreated: true
+            })).catch(e => res.json({
+                conversationCreated: false,
+                error: e
+            }));
+        } else {
+            res.json({
+                conversationCreated: false,
+                error: {
+                    conversationExists: true
+                }
+            })
+        }
     })
-    newConversation.save().then(() => res.json({
-        conversationCreated: true
-    })).catch(() => res.json({
-        conversationCreated: false
-    }));
+
 })
 
 app.get("/getConversationList", (req, res) => {
@@ -198,6 +213,49 @@ app.post("/deleteConversation", (req, res) => {
     }) : res.json({
         deleted: false
     })).catch(err => console.log(err));
+});
+
+app.post("/joinConversation", (req, res) => {
+    const {
+        conversationJoinName
+    } = req.body;
+    const {
+        _id
+    } = req.user;
+    Conversation.findOne({
+        name: conversationJoinName
+    }).then(conversation => {
+        if (conversation) {
+            const isMember = conversation.members.some(member => member.equals(_id));
+            const isCandidate = conversation.memberCandidates.some(candidate => candidate.equals(_id));
+            const isNotPermitted = conversation.notPermitted.some(notPermitted => notPermitted.equals(_id));
+            if (isMember) {
+                return res.json({
+                    status: 2 // Passed
+                });
+            }
+            if (isNotPermitted) {
+                return res.json({
+                    status: -1 // Not permitted
+                });
+            }
+            if (isCandidate) {
+                return res.json({
+                    status: 0 // Waiting
+                });
+            } else {
+                conversation.memberCandidates.push(_id);
+                conversation.save();
+                return res.json({
+                    status: 1 // First joining request send
+                });
+            }
+        } else {
+            return res.json({
+                status: -2 // No conversation found
+            });
+        }
+    });
 });
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

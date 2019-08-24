@@ -7,7 +7,8 @@ const ConversationSchema = new Schema({
         type: String,
         required: true,
         minlength: 3,
-        maxlength: 20
+        maxlength: 20,
+        unique: true
     },
     description: {
         type: String,
@@ -15,6 +16,14 @@ const ConversationSchema = new Schema({
         maxlength: 20,
     },
     members: [{
+        type: Schema.Types.ObjectId,
+        ref: "User",
+    }],
+    memberCandidates: [{
+        type: Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    notPermitted: [{
         type: Schema.Types.ObjectId,
         ref: "User"
     }],

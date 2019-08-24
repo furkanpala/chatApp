@@ -6,11 +6,14 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   CircularProgress,
-  Box
+  Box,
+  Typography
 } from "@material-ui/core";
 import { Consumer } from "../context";
 import { makeStyles } from "@material-ui/core/styles";
 import ConversationCreateDialog from "./conversationCreateDialog";
+import ConversationJoinDialog from "./conversationJoinDialog";
+import ConversationJoinInfoDialog from "./conversationJoinStatusDialog";
 import Delete from "./deleteConfirmation";
 
 const useStyles = makeStyles(theme => ({
@@ -23,6 +26,10 @@ const useStyles = makeStyles(theme => ({
   },
   progress: {
     margin: theme.spacing(4)
+  },
+  buttons: {
+    display: "flex",
+    justifyContent: "space-evenly"
   }
 }));
 
@@ -32,8 +39,14 @@ const Dashboard = () => {
     <Consumer>
       {({ authenticatedUser, conversationList }) => (
         <Paper className={classes.paper}>
-          <h1>Welcome {authenticatedUser.username}</h1>
-          <ConversationCreateDialog />
+          <Typography variant="h4">
+            Welcome {authenticatedUser.username}
+          </Typography>
+          <Box className={classes.buttons}>
+            <ConversationCreateDialog />
+            <ConversationJoinDialog />
+            <ConversationJoinInfoDialog />
+          </Box>
           {conversationList === -1 ? (
             <Box>
               <CircularProgress
@@ -43,7 +56,9 @@ const Dashboard = () => {
               />
             </Box>
           ) : conversationList.length === 0 ? (
-            <h1>You do not have any conversations</h1>
+            <Typography variant="h4">
+              You do not have any conversations
+            </Typography>
           ) : (
             <List component="nav">
               {conversationList.map(({ name, _id }) => {

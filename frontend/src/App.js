@@ -16,15 +16,25 @@ import Chat from "./components/chat";
 
 // prettier-ignore
 const errors = [
-  "All fields are required",                                // Error Code: 0
-  "Username has to have at least 3 characters",             // Error Code: 1
-  "Username can not be longer than 10 characters",          // Error Code: 2
-  "Password has to have at least 3 characters",             // Error Code: 3
-  "Passwords did not match",                                // Error Code: 4
-  "This username is already in use",                        // Error Code: 5
-  "Conversation name has to have at least 3 characters",    // Error Code: 6
+  "All fields are required", // Error Code: 0
+  "Username has to have at least 3 characters", // Error Code: 1
+  "Username can not be longer than 10 characters", // Error Code: 2
+  "Password has to have at least 3 characters", // Error Code: 3
+  "Passwords did not match", // Error Code: 4
+  "This username is already in use", // Error Code: 5
+  "Conversation name has to have at least 3 characters", // Error Code: 6
   "Conversation name can not be longer than 20 characters", // Error Code: 7
-  "Description can not be longer than 20 characters"        // Error Code: 8
+  "Description can not be longer than 20 characters", // Error Code: 8
+  "This conversation name is already in use" // Error Code: 9
+];
+
+// prettier-ignore
+const conversationJoinMessages = [
+  "There is no such conversation", // Status Code: -2
+  "You are already a member of this conversation, check the 'My Conversations' below", // Status Code: 2
+  "Join request sent", // Status Code: 1
+  "Your request is waiting for the admin's approval", // Status Code: 0
+  "You are not allowed to join this conversation" // Status Code: -1
 ];
 
 const theme = createMuiTheme();
@@ -43,10 +53,14 @@ class App extends Component {
       authenticatedUser: -1,
       showLoginFailedMessage: false,
       conversationCreateDialogStatus: false,
+      conversationJoinDialogStatus: false,
       conversationName: "",
+      conversationJoinName: "",
       conversationDescription: "",
       conversationList: [],
-      deleteConfirmationStatus: false
+      deleteConfirmationStatus: false,
+      conversationJoinStatus: "",
+      conversationInfoDialog: false
     };
   }
 
@@ -244,29 +258,75 @@ class App extends Component {
     this.setState({
       conversationCreateDialogStatus: !conversationCreateDialogStatus,
       conversationDescription: "",
-      conversationName: ""
+      conversationName: "",
+      validationErrors: [],
+      conversationJoinStatus: ""
     });
   };
 
-  handleConverstaionCrate = () => {
+  handleConverstaionJoinDialog = () => {
+    const { conversationJoinDialogStatus } = this.state;
+    this.setState({
+      conversationJoinDialogStatus: !conversationJoinDialogStatus,
+      conversationJoinName: "",
+      conversationJoinStatus: ""
+    });
+  };
+
+  handleConverstaionCreate = () => {
     const { conversationName, conversationDescription } = this.state;
     if (this.isConversationValid()) {
       const conversation = {
         conversationName,
         conversationDescription
       };
-      axios.post("/createConversation", conversation).then(res => {
-        if (res.data.conversationCreated) {
-          this.getConversationList();
-        }
-      });
-      this.setState({
-        conversationCreateDialogStatus: false,
-        conversationDescription: "",
-        conversationName: "",
-        validationErrors: []
-      });
+      axios
+        .post("/createConversation", conversation)
+        .then(res => {
+          if (res.data.conversationCreated) {
+            this.getConversationList();
+            this.setState({
+              conversationCreateDialogStatus: false,
+              conversationDescription: "",
+              conversationName: "",
+              validationErrors: []
+            });
+          } else {
+            if (res.data.error.conversationExists) {
+              this.setState({
+                validationErrors: [9]
+              });
+            } else {
+              console.log(res.data.error);
+            }
+          }
+        })
+        .catch(e => console.log(e));
     }
+  };
+
+  handleConverstaionJoin = () => {
+    const { conversationJoinName } = this.state;
+    const conversation = {
+      conversationJoinName
+    };
+    axios
+      .post("/joinConversation", conversation)
+      .then(({ data: { status } }) => {
+        this.setState({
+          conversationJoinStatus: status,
+          conversationJoinDialogStatus: false,
+          conversationJoinName: "",
+          conversationInfoDialog: true
+        });
+      });
+  };
+
+  handleConversationJoinInfoDialogStatus = () => {
+    const { conversationInfoDialog } = this.state;
+    this.setState({
+      conversationInfoDialog: !conversationInfoDialog
+    });
   };
 
   getConversationList = () => {
@@ -285,7 +345,9 @@ class App extends Component {
 
   handleDeleteConfirmation = id => {
     axios
-      .post("/deleteConversation", { id })
+      .post("/deleteConversation", {
+        id
+      })
       .then(({ data: { deleted } }) =>
         deleted ? this.getConversationList() : null
       )
@@ -300,6 +362,7 @@ class App extends Component {
           <Provider
             value={{
               errors,
+              conversationJoinMessages,
               ...this.state,
               onChange: this.handleChange,
               onClick: this.handleSubmit,
@@ -308,9 +371,13 @@ class App extends Component {
               handleLogout: this.handleLogout,
               whichSnackbar: this.whichSnackbar,
               handleConverstaionDialog: this.handleConverstaionDialog,
-              handleConverstaionCrate: this.handleConverstaionCrate,
+              handleConverstaionCreate: this.handleConverstaionCreate,
               getConversationList: this.getConversationList,
-              handleDeleteConfirmation: this.handleDeleteConfirmation
+              handleDeleteConfirmation: this.handleDeleteConfirmation,
+              handleConverstaionJoinDialog: this.handleConverstaionJoinDialog,
+              handleConverstaionJoin: this.handleConverstaionJoin,
+              handleConversationJoinInfoDialogStatus: this
+                .handleConversationJoinInfoDialogStatus
             }}
           >
             <ThemeProvider theme={theme}>

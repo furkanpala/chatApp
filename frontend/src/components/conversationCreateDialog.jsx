@@ -8,15 +8,24 @@ import {
   DialogTitle
 } from "@material-ui/core";
 import { Consumer } from "../context";
+import CreateIcon from "@material-ui/icons/Create";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles(theme => ({
+  rightIcon: {
+    marginLeft: theme.spacing(1)
+  }
+}));
 
 const ConversationCreateDialog = () => {
+  const classes = useStyles();
   return (
     <Consumer>
       {({
         conversationCreateDialogStatus,
         handleConverstaionDialog,
         onChange,
-        handleConverstaionCrate,
+        handleConverstaionCreate,
         validationErrors,
         errors
       }) => (
@@ -27,6 +36,7 @@ const ConversationCreateDialog = () => {
             onClick={handleConverstaionDialog}
           >
             Start a New Conversation
+            <CreateIcon className={classes.rightIcon} />
           </Button>
           <Dialog
             open={conversationCreateDialogStatus}
@@ -48,12 +58,16 @@ const ConversationCreateDialog = () => {
                     ? errors[6]
                     : validationErrors.includes(7)
                     ? errors[7]
+                    : validationErrors.includes(9)
+                    ? errors[9]
                     : null
                 }
                 error={
                   validationErrors.includes(6)
                     ? true
                     : validationErrors.includes(7)
+                    ? true
+                    : validationErrors.includes(9)
                     ? true
                     : false
                 }
@@ -76,7 +90,7 @@ const ConversationCreateDialog = () => {
               <Button onClick={handleConverstaionDialog} color="primary">
                 Cancel
               </Button>
-              <Button onClick={handleConverstaionCrate} color="primary">
+              <Button onClick={handleConverstaionCreate} color="primary">
                 Create
               </Button>
             </DialogActions>

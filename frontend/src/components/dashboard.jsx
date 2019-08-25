@@ -15,6 +15,7 @@ import ConversationCreateDialog from "./conversationCreateDialog";
 import ConversationJoinDialog from "./conversationJoinDialog";
 import ConversationJoinInfoDialog from "./conversationJoinStatusDialog";
 import Delete from "./deleteConfirmation";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -33,7 +34,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Dashboard = () => {
+const Dashboard = ({ history }) => {
   const classes = useStyles();
   return (
     <Consumer>
@@ -61,13 +62,24 @@ const Dashboard = () => {
             </Typography>
           ) : (
             <List component="nav">
-              {conversationList.map(({ name, _id }) => {
+              {conversationList.map(({ name, _id, ...rest }) => {
                 return (
                   <ListItem key={_id} button divider>
-                    <ListItemText primary={name} />
-                    <ListItemSecondaryAction>
-                      <Delete name={name} id={_id} />
-                    </ListItemSecondaryAction>
+                    <Link
+                      to={{
+                        pathname: "/chat",
+                        state: {
+                          activeConversation: {
+                            ...rest
+                          }
+                        }
+                      }}
+                    >
+                      <ListItemText primary={name} />
+                      <ListItemSecondaryAction>
+                        <Delete name={name} id={_id} />
+                      </ListItemSecondaryAction>
+                    </Link>
                   </ListItem>
                 );
               })}

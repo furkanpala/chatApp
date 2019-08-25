@@ -9,7 +9,7 @@ const useStyles = makeStyles({
   }
 });
 
-const Header = props => {
+const Header = () => {
   const classes = useStyles();
   return (
     <Consumer>

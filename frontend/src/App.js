@@ -12,6 +12,7 @@ import { Provider } from "./context";
 import axios from "axios";
 import DashboardRoute from "./routes/dashboardRoute";
 import HomeRoute from "./routes/homeRoute";
+import ChatRoute from "./routes/chatRoute";
 import Chat from "./components/chat";
 
 // prettier-ignore
@@ -60,7 +61,9 @@ class App extends Component {
       conversationList: [],
       deleteConfirmationStatus: false,
       conversationJoinStatus: "",
-      conversationInfoDialog: false
+      conversationInfoDialog: false,
+      conversationSettingsDialogStatus: false,
+      activeConversation: null
     };
   }
 
@@ -354,6 +357,13 @@ class App extends Component {
       .catch(err => console.log(err));
   };
 
+  handleConversationSettingsDialog = () => {
+    const { conversationSettingsDialogStatus } = this.state;
+    this.setState({
+      conversationSettingsDialogStatus: !conversationSettingsDialogStatus
+    });
+  };
+
   render() {
     const { authenticatedUser } = this.state;
     return (
@@ -377,7 +387,10 @@ class App extends Component {
               handleConverstaionJoinDialog: this.handleConverstaionJoinDialog,
               handleConverstaionJoin: this.handleConverstaionJoin,
               handleConversationJoinInfoDialogStatus: this
-                .handleConversationJoinInfoDialogStatus
+                .handleConversationJoinInfoDialogStatus,
+              handleConversationSettingsDialog: this
+                .handleConversationSettingsDialog,
+              goToConversation: this.goToConversation
             }}
           >
             <ThemeProvider theme={theme}>
@@ -391,9 +404,13 @@ class App extends Component {
                 }}
               >
                 <Switch>
-                  <HomeRoute path="/" exact component={Home} />
-                  <DashboardRoute path="/dashboard" component={Dashboard} />
-                  <Route path="/chat" component={Chat} />
+                  <HomeRoute exact path="/" component={Home} />
+                  <DashboardRoute
+                    exact
+                    path="/dashboard"
+                    component={Dashboard}
+                  />
+                  <ChatRoute exact path="/chat" component={Chat} />
                   <Route component={notFound} />
                 </Switch>
               </Container>

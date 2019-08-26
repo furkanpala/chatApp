@@ -364,6 +364,20 @@ class App extends Component {
     });
   };
 
+  goToConversation = id => {
+    this.setState({
+      activeConversation: -1
+    });
+    setTimeout(() => {
+      axios.post("/getSelectedConversation", { id }).then(res => {
+        const { selectedConversation } = res.data;
+        if (selectedConversation) {
+          this.setState({ activeConversation: selectedConversation });
+        }
+      });
+    }, 1000);
+  };
+
   render() {
     const { authenticatedUser } = this.state;
     return (
@@ -410,7 +424,12 @@ class App extends Component {
                     path="/dashboard"
                     component={Dashboard}
                   />
-                  <ChatRoute exact path="/chat" component={Chat} />
+                  <ChatRoute
+                    exact
+                    path="/chat"
+                    component={Chat}
+                    component2={Dashboard}
+                  />
                   <Route component={notFound} />
                 </Switch>
               </Container>

@@ -1,23 +1,33 @@
-import React from "react";
+import React, { Component } from "react";
 import Messages from "./messages";
 import Type from "./type";
+import LoadingIcon from "./loadingIcon";
+import { Consumer } from "../context";
 
-const Chat = ({
-  location: {
-    state: { activeConversation }
+class Chat extends Component {
+  componentDidMount() {
+    const { selectedConversation } = this.props.location.state;
+    const { goToConversation } = this.props;
+    goToConversation(selectedConversation.id);
   }
-}) => {
-  console.log(activeConversation);
-  return (
-    <>
-      <h1>{activeConversation.name}</h1>
-      <Messages />
-      <Type
-        members={activeConversation.members}
-        memberCandidates={activeConversation.memberCandidates}
-      />
-    </>
-  );
-};
+  render() {
+    return (
+      <Consumer>
+        {({ activeConversation }) => (
+          <>
+            {activeConversation === -1 ? (
+              <LoadingIcon page="chat" />
+            ) : (
+              <>
+                <Messages />
+                <Type />
+              </>
+            )}
+          </>
+        )}
+      </Consumer>
+    );
+  }
+}
 
 export default Chat;

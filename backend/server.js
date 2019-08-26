@@ -197,8 +197,16 @@ app.get("/getConversationList", (req, res) => {
     if (req.user) {
         Conversation.find().then(allConversations => {
             const filteredConversations = allConversations.filter(conversation => conversation.members.some(member => member.equals(req.user._id)));
+            const conversationNames = filteredConversations.reduce((acc, cV) => {
+                const info = {
+                    name: cV.name,
+                    id: cV._id
+                };
+                acc.push(info);
+                return acc
+            }, []);
             res.json({
-                conversations: filteredConversations
+                conversations: conversationNames
             });
         })
     }
@@ -255,6 +263,24 @@ app.post("/joinConversation", (req, res) => {
                 status: -2 // No conversation found
             });
         }
+    });
+});
+
+app.post("/getSelectedConversation", (req, res) => {
+    const {
+        id
+    } = req.body;
+    const {
+        _id
+    } = req.user;
+    Conversation.findById(id).then(conversation => {
+        const isMember = conversation.members.some(member => member.equals(_id));
+        if (isMember) {
+            return res.json({
+                selectedConversation: conversation
+            });
+        }
+        return res.status(401); //TODO: Hata mesajı vs.
     });
 });
 

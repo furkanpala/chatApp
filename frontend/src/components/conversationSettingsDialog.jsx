@@ -14,7 +14,7 @@ import {
 import { Consumer } from "../context";
 import PersonIcon from "@material-ui/icons/Person";
 
-const ConversationSettingsDialog = ({ members, memberCandidates }) => {
+const ConversationSettingsDialog = () => {
   return (
     <Consumer>
       {({
@@ -30,14 +30,12 @@ const ConversationSettingsDialog = ({ members, memberCandidates }) => {
           <DialogTitle>Members</DialogTitle>
           <DialogContent>
             <List component="nav">
-              {members.map(member => (
-                <ListItem key={member} disableGutters>
-                  <ListItemIcon>
-                    <PersonIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={member} />
-                </ListItem>
-              ))}
+              <ListItem disableGutters>
+                <ListItemIcon>
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText primary="Merhaba" />
+              </ListItem>
             </List>
             <Divider />
             <List component="nav">

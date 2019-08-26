@@ -5,7 +5,6 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
-  CircularProgress,
   Box,
   Typography
 } from "@material-ui/core";
@@ -14,6 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import ConversationCreateDialog from "./conversationCreateDialog";
 import ConversationJoinDialog from "./conversationJoinDialog";
 import ConversationJoinInfoDialog from "./conversationJoinStatusDialog";
+import LoadingIcon from "./loadingIcon";
 import Delete from "./deleteConfirmation";
 import { Link } from "react-router-dom";
 
@@ -25,20 +25,17 @@ const useStyles = makeStyles(theme => ({
     padding: "10px",
     textAlign: "center"
   },
-  progress: {
-    margin: theme.spacing(4)
-  },
   buttons: {
     display: "flex",
     justifyContent: "space-evenly"
   }
 }));
 
-const Dashboard = ({ history }) => {
+const Dashboard = () => {
   const classes = useStyles();
   return (
     <Consumer>
-      {({ authenticatedUser, conversationList }) => (
+      {({ authenticatedUser, conversationList, goToConversation }) => (
         <Paper className={classes.paper}>
           <Typography variant="h4">
             Welcome {authenticatedUser.username}
@@ -49,37 +46,34 @@ const Dashboard = ({ history }) => {
             <ConversationJoinInfoDialog />
           </Box>
           {conversationList === -1 ? (
-            <Box>
-              <CircularProgress
-                size={50}
-                className={classes.progress}
-                color="secondary"
-              />
-            </Box>
+            <LoadingIcon page="dashboard" />
           ) : conversationList.length === 0 ? (
             <Typography variant="h4">
               You do not have any conversations
             </Typography>
           ) : (
             <List component="nav">
-              {conversationList.map(({ name, _id, ...rest }) => {
+              {conversationList.map(conversation => {
                 return (
-                  <ListItem key={_id} button divider>
-                    <Link
-                      to={{
-                        pathname: "/chat",
-                        state: {
-                          activeConversation: {
-                            ...rest
-                          }
+                  <ListItem
+                    onClick={goToConversation.bind(this, conversation.id)}
+                    component={Link}
+                    to={{
+                      pathname: "/chat",
+                      state: {
+                        selectedConversation: {
+                          ...conversation
                         }
-                      }}
-                    >
-                      <ListItemText primary={name} />
-                      <ListItemSecondaryAction>
-                        <Delete name={name} id={_id} />
-                      </ListItemSecondaryAction>
-                    </Link>
+                      }
+                    }}
+                    key={conversation.id}
+                    button
+                    divider
+                  >
+                    <ListItemText primary={conversation.name} />
+                    <ListItemSecondaryAction>
+                      <Delete name={conversation.name} id={conversation.id} />
+                    </ListItemSecondaryAction>
                   </ListItem>
                 );
               })}

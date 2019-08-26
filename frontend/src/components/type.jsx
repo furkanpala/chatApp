@@ -14,7 +14,7 @@ const useStyles = makeStyles({
   }
 });
 
-const Type = ({ members, memberCandidates }) => {
+const Type = () => {
   const classes = useStyles();
   return (
     <Consumer>
@@ -37,10 +37,7 @@ const Type = ({ members, memberCandidates }) => {
           <Button color="primary" variant="outlined">
             <SendIcon />
           </Button>
-          <ConversationSettingsDialog
-            members={members}
-            memberCandidates={memberCandidates}
-          />
+          <ConversationSettingsDialog />
         </Box>
       )}
     </Consumer>

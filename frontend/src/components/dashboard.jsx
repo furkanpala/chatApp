@@ -6,7 +6,8 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Box,
-  Typography
+  Typography,
+  ListSubheader
 } from "@material-ui/core";
 import { Consumer } from "../context";
 import { makeStyles } from "@material-ui/core/styles";
@@ -20,14 +21,28 @@ import { Link } from "react-router-dom";
 const useStyles = makeStyles(theme => ({
   paper: {
     backgroundColor: theme.palette.background.default,
-    height: "500px",
-    marginTop: "10px",
-    padding: "10px",
-    textAlign: "center"
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 10,
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    overflow: "auto"
   },
   buttons: {
     display: "flex",
-    justifyContent: "space-evenly"
+    justifyContent: "space-evenly",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      flexBasis: 100
+    }
+  },
+  conversations: {
+    overflowY: "hidden",
+    "&:hover": {
+      overflowY: "auto"
+    }
   }
 }));
 
@@ -36,8 +51,8 @@ const Dashboard = () => {
   return (
     <Consumer>
       {({ authenticatedUser, conversationList, goToConversation }) => (
-        <Paper className={classes.paper}>
-          <Typography variant="h4">
+        <Paper className={classes.paper} elevation={10}>
+          <Typography variant="h4" gutterBottom>
             Welcome {authenticatedUser.username}
           </Typography>
           <Box className={classes.buttons}>
@@ -52,7 +67,8 @@ const Dashboard = () => {
               You do not have any conversations
             </Typography>
           ) : (
-            <List component="nav">
+            <List component="nav" className={classes.conversations}>
+              <ListSubheader>My Conversations</ListSubheader>
               {conversationList.map(conversation => {
                 return (
                   <ListItem

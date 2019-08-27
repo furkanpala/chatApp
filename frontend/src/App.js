@@ -414,7 +414,8 @@ class App extends Component {
                 style={{
                   flexGrow: "1",
                   display: "flex",
-                  flexDirection: "column"
+                  flexDirection: "column",
+                  overflow: "auto"
                 }}
               >
                 <Switch>

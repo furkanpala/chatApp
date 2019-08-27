@@ -32,7 +32,8 @@ const Type = () => {
             fullWidth
             variant="outlined"
             multiline
-            rowsMax="6"
+            rowsMax="3"
+            onKeyUp={e => (e.keyCode === 13 ? console.log("enter") : null)}
           />
           <Button color="primary" variant="outlined">
             <SendIcon />

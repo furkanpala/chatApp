@@ -19,7 +19,9 @@ const SuccessSnackbar = props => {
         style={
           type === "success"
             ? { backgroundColor: green[600] }
-            : { backgroundColor: "#f44336" } // Error color
+            : type === "error"
+            ? { backgroundColor: "#f44336" }
+            : null
         }
         message={
           <span>

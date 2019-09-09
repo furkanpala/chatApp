@@ -1,11 +1,11 @@
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 0.5em;
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: rgb(183, 202, 236);
   border-radius: 5px;
-}
+} */
 
 html,
 body {

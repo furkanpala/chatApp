@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Typography, Button, Box } from "@material-ui/core";
 import { Consumer } from "../context";
 import { makeStyles } from "@material-ui/core/styles";
 import ChatIcon from "@material-ui/icons/Chat";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles({
   title: {
@@ -21,9 +22,11 @@ const Header = () => {
           <Toolbar>
             <Box className={classes.title}>
               <Typography
+                component={Link}
+                to="/"
                 variant="h6"
                 color="inherit"
-                style={{ marginRight: 2 }}
+                style={{ marginRight: 2, textDecoration: "none" }}
               >
                 What's Up
               </Typography>

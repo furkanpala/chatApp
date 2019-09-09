@@ -33,7 +33,7 @@ const Type = () => {
             variant="outlined"
             multiline
             rowsMax="3"
-            onKeyUp={e => (e.keyCode === 13 ? console.log("enter") : null)}
+            onKeyUp={e => (e.keyCode === 13 ? console.log("enter") : null)} //TODO: enter ile yolla
           />
           <Button color="primary" variant="outlined">
             <SendIcon />

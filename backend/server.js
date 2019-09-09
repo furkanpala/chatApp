@@ -1,16 +1,24 @@
 const express = require("express");
 const session = require("express-session");
 const app = express();
-require("dotenv").config();
-const PORT = process.env.PORT || 5000;
 const cors = require("cors")
+const PORT = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 const User = require("./models/user.model");
 const Conversation = require("./models/conversation.model");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
-const passport = require("passport");
 const LocalStrategy = require("passport-local");
+const passport = require("passport");
+const server = app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+require("dotenv").config();
+
+const expressSession = session({
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.SECRET,
+});
+
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -49,11 +57,7 @@ passport.use(new LocalStrategy({
 
 app.use(cors());
 app.use(express.json());
-app.use(session({
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.SECRET,
-}))
+app.use(expressSession);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -212,15 +216,26 @@ app.get("/getConversationList", (req, res) => {
     }
 });
 
-app.post("/deleteConversation", (req, res) => {
+app.post("/leaveConversation", (req, res) => {
     const {
         id
     } = req.body;
-    Conversation.findByIdAndDelete(id).then(conversation => conversation ? res.json({
-        deleted: true
-    }) : res.json({
-        deleted: false
-    })).catch(err => console.log(err));
+    const {
+        _id
+    } = req.user;
+    Conversation.findById(id).then(conversation => {
+        if (conversation) {
+            conversation.members.map((member, index) => {
+                if (member.equals(_id)) {
+                    conversation.members.splice(index, 1);
+                    conversation.save();
+                    res.json({
+                        left: true
+                    })
+                }
+            });
+        }
+    }).catch(err => console.log(err));
 });
 
 app.post("/joinConversation", (req, res) => {
@@ -273,7 +288,8 @@ app.post("/getSelectedConversation", (req, res) => {
     const {
         _id
     } = req.user;
-    Conversation.findById(id).then(conversation => {
+    Conversation.findById(id).populate("members").populate("memberCandidates").populate("notPermitted").exec((_, conversation) => {
+        // console.log(conversation.members);
         const isMember = conversation.members.some(member => member.equals(_id));
         if (isMember) {
             return res.json({
@@ -284,4 +300,42 @@ app.post("/getSelectedConversation", (req, res) => {
     });
 });
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.post("/newUser", (req, res) => {
+    const {
+        userID,
+        conversationID,
+        status
+    } = req.body;
+    const {
+        _id
+    } = req.user;
+    Conversation.findById(conversationID).populate("members").populate("memberCandidates").populate("notPermitted").exec((_, conversation) => {
+        if (conversation) {
+            const {
+                admin
+            } = conversation;
+            if (admin.equals(_id)) {
+                conversation.memberCandidates.map((candidate, index) => {
+                    if (candidate.equals(userID)) {
+                        conversation.memberCandidates.splice(index, 1);
+                        User.findById(userID).then(user => {
+                            if (status) {
+                                conversation.members.push(user);
+                            } else {
+                                conversation.notPermitted.push(user);
+                            }
+                            conversation.save();
+                            res.json({
+                                conversation
+                            });
+                        });
+                    }
+                });
+            } else {
+                res.status(401);
+            }
+        } else {
+            res.status(400);
+        }
+    });
+});

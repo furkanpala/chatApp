@@ -9,17 +9,23 @@ import {
   ListItemText,
   ListItem,
   DialogTitle,
-  Divider
+  Divider,
+  ListItemSecondaryAction,
+  IconButton
 } from "@material-ui/core";
 import { Consumer } from "../context";
 import PersonIcon from "@material-ui/icons/Person";
+import DoneIcon from "@material-ui/icons/Done";
+import CloseIcon from "@material-ui/icons/Close";
 
 const ConversationSettingsDialog = () => {
   return (
     <Consumer>
       {({
         handleConversationSettingsDialog,
-        conversationSettingsDialogStatus
+        conversationSettingsDialogStatus,
+        activeConversation,
+        newUser
       }) => (
         <Dialog
           open={conversationSettingsDialogStatus}
@@ -28,25 +34,64 @@ const ConversationSettingsDialog = () => {
           maxWidth="xs"
         >
           <DialogTitle>Members</DialogTitle>
-          <DialogContent>
-            <List component="nav">
-              <ListItem disableGutters>
-                <ListItemIcon>
-                  <PersonIcon />
-                </ListItemIcon>
-                <ListItemText primary="Merhaba" />
-              </ListItem>
-            </List>
-            <Divider />
-            <List component="nav">
-              <ListItem disableGutters>
-                <ListItemIcon>
-                  <PersonIcon />
-                </ListItemIcon>
-                <ListItemText primary="Inbox" />
-              </ListItem>
-            </List>
-          </DialogContent>
+          {activeConversation === null ? null : activeConversation ===
+            -1 ? null : (
+            <DialogContent>
+              <>
+                {activeConversation.memberCandidates.length === 0 ? null : (
+                  <>
+                    <List component="nav">
+                      {activeConversation.memberCandidates.map(
+                        ({ _id, username }) => (
+                          <ListItem disableGutters key={_id}>
+                            <ListItemIcon>
+                              <PersonIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={username} />
+                            <ListItemSecondaryAction>
+                              <IconButton
+                                edge="end"
+                                onClick={newUser.bind(
+                                  this,
+                                  _id,
+                                  activeConversation._id,
+                                  true
+                                )}
+                              >
+                                <DoneIcon />
+                              </IconButton>
+                              <IconButton
+                                edge="end"
+                                onClick={newUser.bind(
+                                  this,
+                                  _id,
+                                  activeConversation._id,
+                                  false
+                                )}
+                              >
+                                <CloseIcon />
+                              </IconButton>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                        )
+                      )}
+                    </List>
+                    <Divider />
+                  </>
+                )}
+              </>
+              <List component="nav">
+                {activeConversation.members.map(({ username, _id }) => (
+                  <ListItem disableGutters key={_id}>
+                    <ListItemIcon>
+                      <PersonIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={username} />
+                  </ListItem>
+                ))}
+              </List>
+            </DialogContent>
+          )}
           <DialogActions>
             <Button color="primary" onClick={handleConversationSettingsDialog}>
               Close

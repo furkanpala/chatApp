@@ -15,10 +15,20 @@ import ConversationCreateDialog from "./conversationCreateDialog";
 import ConversationJoinDialog from "./conversationJoinDialog";
 import ConversationJoinInfoDialog from "./conversationJoinStatusDialog";
 import LoadingIcon from "./loadingIcon";
-import Delete from "./deleteConfirmation";
+import Leave from "./leaveConfirmation";
 import { Link } from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
+  "@global": {
+    "::-webkit-scrollbar": {
+      width: "0.5em"
+    },
+    "::-webkit-scrollbar-thumb": {
+      height: 56,
+      background: "inherit",
+      borderRadius: 4
+    }
+  },
   paper: {
     backgroundColor: theme.palette.background.default,
     marginTop: 10,
@@ -39,9 +49,11 @@ const useStyles = makeStyles(theme => ({
     }
   },
   conversations: {
-    overflowY: "hidden",
+    overflowY: "auto",
     "&:hover": {
-      overflowY: "auto"
+      "&::-webkit-scrollbar-thumb": {
+        background: "#cecece"
+      }
     }
   }
 }));
@@ -68,11 +80,11 @@ const Dashboard = () => {
             </Typography>
           ) : (
             <List component="nav" className={classes.conversations}>
-              <ListSubheader>My Conversations</ListSubheader>
+              <ListSubheader disableSticky>My Conversations</ListSubheader>
               {conversationList.map(conversation => {
                 return (
                   <ListItem
-                    onClick={goToConversation.bind(this, conversation.id)}
+                    // onClick={goToConversation.bind(this, conversation.id)}
                     component={Link}
                     to={{
                       pathname: "/chat",
@@ -88,7 +100,7 @@ const Dashboard = () => {
                   >
                     <ListItemText primary={conversation.name} />
                     <ListItemSecondaryAction>
-                      <Delete name={conversation.name} id={conversation.id} />
+                      <Leave name={conversation.name} id={conversation.id} />
                     </ListItemSecondaryAction>
                   </ListItem>
                 );

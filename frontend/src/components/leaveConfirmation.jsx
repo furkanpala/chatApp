@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { TextField, IconButton } from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
+import { TextField, IconButton, Tooltip, Zoom } from "@material-ui/core";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import DoneIcon from "@material-ui/icons/Done";
 import CloseIcon from "@material-ui/icons/Close";
 import { Consumer } from "../context";
@@ -11,7 +11,7 @@ const Delete = ({ name, id }) => {
   const [error, setError] = useState(false);
   return (
     <Consumer>
-      {({ handleDeleteConfirmation }) => (
+      {({ handleLeaveConfirmation }) => (
         <>
           {open ? (
             <>
@@ -25,7 +25,7 @@ const Delete = ({ name, id }) => {
                 edge="end"
                 onClick={() => {
                   if (confirmationName === name) {
-                    handleDeleteConfirmation(id);
+                    handleLeaveConfirmation(id);
                     handleChange("");
                     setOpen(!open);
                     setError(false);
@@ -48,16 +48,18 @@ const Delete = ({ name, id }) => {
               </IconButton>
             </>
           ) : (
-            <IconButton
-              onClick={() => {
-                setOpen(!open);
-                handleChange("");
-                setError(false);
-              }}
-              edge="end"
-            >
-              <DeleteIcon />
-            </IconButton>
+            <Tooltip title="Leave" placement="left" TransitionComponent={Zoom}>
+              <IconButton
+                onClick={() => {
+                  setOpen(!open);
+                  handleChange("");
+                  setError(false);
+                }}
+                edge="end"
+              >
+                <ExitToAppIcon />
+              </IconButton>
+            </Tooltip>
           )}
         </>
       )}

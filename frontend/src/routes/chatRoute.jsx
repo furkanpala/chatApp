@@ -5,13 +5,17 @@ import { Consumer } from "../context";
 const ChatRoute = ({ component: Component, location: { state }, ...rest }) => {
   return (
     <Consumer>
-      {({ authenticatedUser, goToConversation }) => (
+      {({ authenticatedUser, goToConversation, updateConversation }) => (
         <Route
           {...rest}
           render={props =>
             authenticatedUser ? (
               state ? (
-                <Component {...props} goToConversation={goToConversation} />
+                <Component
+                  {...props}
+                  goToConversation={goToConversation}
+                  updateConversation={updateConversation}
+                />
               ) : (
                 <Redirect to="/dashboard" />
               )

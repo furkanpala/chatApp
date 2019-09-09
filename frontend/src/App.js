@@ -17,25 +17,25 @@ import Chat from "./components/chat";
 
 // prettier-ignore
 const errors = [
-  "All fields are required", // Error Code: 0
-  "Username has to have at least 3 characters", // Error Code: 1
-  "Username can not be longer than 10 characters", // Error Code: 2
-  "Password has to have at least 3 characters", // Error Code: 3
-  "Passwords did not match", // Error Code: 4
-  "This username is already in use", // Error Code: 5
-  "Conversation name has to have at least 3 characters", // Error Code: 6
-  "Conversation name can not be longer than 20 characters", // Error Code: 7
-  "Description can not be longer than 20 characters", // Error Code: 8
-  "This conversation name is already in use" // Error Code: 9
+  "All fields are required",                                  // Error Code: 0
+  "Username has to have at least 3 characters",               // Error Code: 1
+  "Username can not be longer than 10 characters",            // Error Code: 2
+  "Password has to have at least 3 characters",               // Error Code: 3
+  "Passwords did not match",                                  // Error Code: 4
+  "This username is already in use",                          // Error Code: 5
+  "Conversation name has to have at least 3 characters",      // Error Code: 6
+  "Conversation name can not be longer than 20 characters",   // Error Code: 7
+  "Description can not be longer than 20 characters",         // Error Code: 8
+  "This conversation name is already in use"                  // Error Code: 9
 ];
 
 // prettier-ignore
 const conversationJoinMessages = [
-  "There is no such conversation", // Status Code: -2
-  "You are already a member of this conversation, check the 'My Conversations' below", // Status Code: 2
-  "Join request sent", // Status Code: 1
-  "Your request is waiting for the admin's approval", // Status Code: 0
-  "You are not allowed to join this conversation" // Status Code: -1
+  "There is no such conversation",                                                      // Status Code: -2
+  "You are already a member of this conversation, check the 'My Conversations' below",  // Status Code: 2
+  "Join request sent",                                                                  // Status Code: 1
+  "Your request is waiting for the admin's approval",                                   // Status Code: 0
+  "You are not allowed to join this conversation"                                       // Status Code: -1
 ];
 
 const theme = createMuiTheme();
@@ -346,14 +346,12 @@ class App extends Component {
     }, 1000);
   };
 
-  handleDeleteConfirmation = id => {
+  handleLeaveConfirmation = id => {
     axios
-      .post("/deleteConversation", {
+      .post("/leaveConversation", {
         id
       })
-      .then(({ data: { deleted } }) =>
-        deleted ? this.getConversationList() : null
-      )
+      .then(({ data: { left } }) => (left ? this.getConversationList() : null))
       .catch(err => console.log(err));
   };
 
@@ -378,6 +376,17 @@ class App extends Component {
     }, 1000);
   };
 
+  newUser = (userID, conversationID, status) => {
+    axios.post("/newUser", { userID, conversationID, status }).then(res => {
+      const { conversation } = res.data;
+      if (conversation) {
+        this.setState({
+          activeConversation: conversation
+        });
+      }
+    });
+  };
+
   render() {
     const { authenticatedUser } = this.state;
     return (
@@ -397,14 +406,15 @@ class App extends Component {
               handleConverstaionDialog: this.handleConverstaionDialog,
               handleConverstaionCreate: this.handleConverstaionCreate,
               getConversationList: this.getConversationList,
-              handleDeleteConfirmation: this.handleDeleteConfirmation,
+              handleLeaveConfirmation: this.handleLeaveConfirmation,
               handleConverstaionJoinDialog: this.handleConverstaionJoinDialog,
               handleConverstaionJoin: this.handleConverstaionJoin,
               handleConversationJoinInfoDialogStatus: this
                 .handleConversationJoinInfoDialogStatus,
               handleConversationSettingsDialog: this
                 .handleConversationSettingsDialog,
-              goToConversation: this.goToConversation
+              goToConversation: this.goToConversation,
+              newUser: this.newUser
             }}
           >
             <ThemeProvider theme={theme}>

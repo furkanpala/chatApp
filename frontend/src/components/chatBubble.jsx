@@ -71,7 +71,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ChatBubble = ({ own }) => {
+const ChatBubble = ({ own, content, username, ago }) => {
   const classes = useStyles();
   return (
     <Card className={`${own ? classes.own : classes.other} ${classes.bubble}`}>
@@ -85,17 +85,17 @@ const ChatBubble = ({ own }) => {
             }`}
           >
             <IconButton className={classes.iconButton}>
-              <Avatar>F</Avatar>
+              <Avatar>{username[0].toUpperCase()}</Avatar>
             </IconButton>
             <Typography color="textSecondary" className={classes.username}>
-              fpala
+              {username}
             </Typography>
           </Box>
           <Typography
             color="textSecondary"
             className={own ? classes.mobileDate : null}
           >
-            2 days ago
+            {ago} minutes ago
           </Typography>
         </Box>
         <Box
@@ -103,7 +103,7 @@ const ChatBubble = ({ own }) => {
             own ? classes.ownMessageArea : classes.otherMessageArea
           } ${classes.messageArea}`}
         >
-          asd
+          {content}
         </Box>
       </CardContent>
     </Card>

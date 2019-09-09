@@ -63,7 +63,8 @@ class App extends Component {
       conversationJoinStatus: "",
       conversationInfoDialog: false,
       conversationSettingsDialogStatus: false,
-      activeConversation: null
+      activeConversation: null,
+      message: ""
     };
   }
 
@@ -387,6 +388,32 @@ class App extends Component {
     });
   };
 
+  sendMessage = () => {
+    const {
+      message,
+      activeConversation: { _id }
+    } = this.state;
+    if (message.length < 200) {
+      axios.post("/newMessage", { message, _id }).then(res => {
+        console.log(res.data);
+        this.setState({
+          message: ""
+        });
+      });
+    }
+  };
+
+  calculateTimesAgo = createdAt => {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffMs = now - created;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+    return diffMin;
+  };
+
   render() {
     const { authenticatedUser } = this.state;
     return (
@@ -414,7 +441,9 @@ class App extends Component {
               handleConversationSettingsDialog: this
                 .handleConversationSettingsDialog,
               goToConversation: this.goToConversation,
-              newUser: this.newUser
+              newUser: this.newUser,
+              sendMessage: this.sendMessage,
+              calculateTimesAgo: this.calculateTimesAgo
             }}
           >
             <ThemeProvider theme={theme}>
@@ -453,3 +482,17 @@ class App extends Component {
 }
 
 export default App;
+
+/*TODO:
+ * conversation oluşturma katılma silme text fieldlarında value değeri yok bunu incele.
+ * socket bağla
+ * socket ile express sessionu paylaş
+ * entera basınca mesajı yolla
+ * entera basınca mesajı mı yollasın alt satıra mı geçsin anahtar koy
+ * chat mesajları çubuğunun otomatik aşağı inmesini sağla
+ * gruptan çıkma işlemini düzelt
+ * admin gruptan çıkmak isterse birine adminliği devretsin
+ * eğer devredecek kimse yoksa grup silinsin
+ * mesaj max uzunluğu 200 olarak databasede belirlendi bunu frontend e uygula
+ * sadece " " oluşan mesajları kabul etme (trim uygula)
+ */

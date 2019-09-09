@@ -18,7 +18,13 @@ const Type = () => {
   const classes = useStyles();
   return (
     <Consumer>
-      {({ handleConversationSettingsDialog }) => (
+      {({
+        handleConversationSettingsDialog,
+        sendMessage,
+        onChange,
+        message,
+        activeConversation
+      }) => (
         <Box className={classes.type}>
           <Button
             color="primary"
@@ -29,13 +35,16 @@ const Type = () => {
           </Button>
           <TextField
             placeholder="Your Message"
+            name="message"
             fullWidth
             variant="outlined"
             multiline
+            value={message}
             rowsMax="3"
             onKeyUp={e => (e.keyCode === 13 ? console.log("enter") : null)} //TODO: enter ile yolla
+            onChange={onChange}
           />
-          <Button color="primary" variant="outlined">
+          <Button color="primary" variant="outlined" onClick={sendMessage}>
             <SendIcon />
           </Button>
           <ConversationSettingsDialog />

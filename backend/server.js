@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 const User = require("./models/user.model");
 const Conversation = require("./models/conversation.model");
+const Message = require("./models/message.model");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const LocalStrategy = require("passport-local");
@@ -288,9 +289,15 @@ app.post("/getSelectedConversation", (req, res) => {
     const {
         _id
     } = req.user;
-    Conversation.findById(id).populate("members").populate("memberCandidates").populate("notPermitted").exec((_, conversation) => {
+    Conversation.findById(id).populate("members").populate("memberCandidates").populate("notPermitted").populate({
+        path: "messages",
+        populate: {
+            path: "sentBy"
+        }
+    }).exec((_, conversation) => {
         // console.log(conversation.members);
         const isMember = conversation.members.some(member => member.equals(_id));
+        conversation.messages.map(message => message.populate("sentBy"));
         if (isMember) {
             return res.json({
                 selectedConversation: conversation
@@ -309,7 +316,12 @@ app.post("/newUser", (req, res) => {
     const {
         _id
     } = req.user;
-    Conversation.findById(conversationID).populate("members").populate("memberCandidates").populate("notPermitted").exec((_, conversation) => {
+    Conversation.findById(conversationID).populate("members").populate("memberCandidates").populate("notPermitted").populate({
+        path: "messages",
+        populate: {
+            path: "sentBy"
+        }
+    }).exec((_, conversation) => {
         if (conversation) {
             const {
                 admin
@@ -324,12 +336,49 @@ app.post("/newUser", (req, res) => {
                             } else {
                                 conversation.notPermitted.push(user);
                             }
-                            conversation.save();
+                            conversation.save(); //TODO: thenli yap
                             res.json({
                                 conversation
                             });
                         });
                     }
+                });
+            } else {
+                res.status(401);
+            }
+        } else {
+            res.status(400);
+        }
+    });
+});
+
+app.post("/newMessage", (req, res) => {
+    const {
+        message
+    } = req.body;
+    const conversationID = req.body._id;
+    const userID = req.user._id;
+    console.log(userID);
+    Conversation.findById(conversationID).populate("members").populate("memberCandidates").populate("notPermitted").populate({
+        path: "messages",
+        populate: {
+            path: "sentBy"
+        }
+    }).exec((_, conversation) => {
+        if (conversation) {
+            const isMember = conversation.members.some(member => member.equals(userID));
+            if (isMember) {
+                const newMessage = new Message({
+                    content: message,
+                    sentBy: userID
+                });
+                conversation.messages.push(newMessage);
+                newMessage.save().then(() => {
+                    conversation.save().then(() => {
+                        res.json({
+                            conversation
+                        })
+                    });
                 });
             } else {
                 res.status(401);

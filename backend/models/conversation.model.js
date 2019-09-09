@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const User = require("./user.model");
 
 const ConversationSchema = new Schema({
     name: {
@@ -27,9 +26,10 @@ const ConversationSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User"
     }],
-    messages: {
-        type: Array
-    },
+    messages: [{
+        type: Schema.Types.ObjectId,
+        ref: "Message"
+    }],
     admin: {
         type: Schema.Types.ObjectId,
         ref: "User"

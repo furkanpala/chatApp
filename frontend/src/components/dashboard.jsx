@@ -62,7 +62,7 @@ const Dashboard = () => {
   const classes = useStyles();
   return (
     <Consumer>
-      {({ authenticatedUser, conversationList, goToConversation }) => (
+      {({ authenticatedUser, conversationList }) => (
         <Paper className={classes.paper} elevation={10}>
           <Typography variant="h4" gutterBottom>
             Welcome {authenticatedUser.username}

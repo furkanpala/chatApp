@@ -14,7 +14,7 @@ const useStyles = makeStyles({
   }
 });
 
-const Type = () => {
+const Type = ({ socket }) => {
   const classes = useStyles();
   return (
     <Consumer>
@@ -22,8 +22,7 @@ const Type = () => {
         handleConversationSettingsDialog,
         sendMessage,
         onChange,
-        message,
-        activeConversation
+        message
       }) => (
         <Box className={classes.type}>
           <Button
@@ -34,7 +33,11 @@ const Type = () => {
             <MoreVertIcon />
           </Button>
           <TextField
-            placeholder="Your Message"
+            label={
+              message.length === 199
+                ? "1 character left"
+                : `${200 - message.length} characters left`
+            }
             name="message"
             fullWidth
             variant="outlined"
@@ -44,7 +47,11 @@ const Type = () => {
             onKeyUp={e => (e.keyCode === 13 ? console.log("enter") : null)} //TODO: enter ile yolla
             onChange={onChange}
           />
-          <Button color="primary" variant="outlined" onClick={sendMessage}>
+          <Button
+            color="primary"
+            variant="outlined"
+            onClick={sendMessage.bind(this, socket)}
+          >
             <SendIcon />
           </Button>
           <ConversationSettingsDialog />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
@@ -21,7 +21,8 @@ const useStyles = makeStyles(theme => ({
       width: "100%",
       margin: 0
     },
-    flex: "none"
+    flex: "none",
+    wordBreak: "break-all"
   },
   cardContent: {
     display: "flex",
@@ -71,8 +72,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ChatBubble = ({ own, content, username, ago }) => {
+const ChatBubble = ({ own, content, username, createdAt, calcAgo }) => {
   const classes = useStyles();
+  const [ago1, setAgo] = useState(calcAgo(createdAt));
+  useEffect(() => {
+    setInterval(() => setAgo(calcAgo(createdAt)), 1000 * 60);
+  }, [calcAgo, createdAt]);
   return (
     <Card className={`${own ? classes.own : classes.other} ${classes.bubble}`}>
       <CardContent className={classes.cardContent}>
@@ -95,7 +100,7 @@ const ChatBubble = ({ own, content, username, ago }) => {
             color="textSecondary"
             className={own ? classes.mobileDate : null}
           >
-            {ago} minutes ago
+            {ago1}
           </Typography>
         </Box>
         <Box

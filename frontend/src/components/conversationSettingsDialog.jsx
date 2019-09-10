@@ -25,7 +25,8 @@ const ConversationSettingsDialog = () => {
         handleConversationSettingsDialog,
         conversationSettingsDialogStatus,
         activeConversation,
-        newUser
+        newUser,
+        authenticatedUser
       }) => (
         <Dialog
           open={conversationSettingsDialogStatus}
@@ -38,7 +39,9 @@ const ConversationSettingsDialog = () => {
             -1 ? null : (
             <DialogContent>
               <>
-                {activeConversation.memberCandidates.length === 0 ? null : (
+                {activeConversation.admin !==
+                authenticatedUser._id ? null : activeConversation
+                    .memberCandidates.length === 0 ? null : (
                   <>
                     <List component="nav">
                       {activeConversation.memberCandidates.map(

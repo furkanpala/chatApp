@@ -29,7 +29,8 @@ const Messages = () => {
                   content={message.content}
                   own={message.sentBy._id === authenticatedUser._id}
                   username={message.sentBy.username}
-                  ago={calculateTimesAgo(message.createdAt)}
+                  calcAgo={calculateTimesAgo}
+                  createdAt={message.createdAt}
                 />
               ))}
             </Box>

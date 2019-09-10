@@ -12,6 +12,7 @@ const saltRounds = 10;
 const LocalStrategy = require("passport-local");
 const passport = require("passport");
 const server = app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+const io = require("socket.io")(server);
 require("dotenv").config();
 
 const expressSession = session({
@@ -20,6 +21,9 @@ const expressSession = session({
     secret: process.env.SECRET,
 });
 
+io.use((socket, next) => {
+    expressSession(socket.request, socket.request.res, next);
+});
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -352,39 +356,82 @@ app.post("/newUser", (req, res) => {
     });
 });
 
-app.post("/newMessage", (req, res) => {
+// app.post("/newMessage", (req, res) => {
+//     const {
+//         message
+//     } = req.body;
+//     const conversationID = req.body._id;
+//     const userID = req.user._id;
+//     console.log(userID);
+//     Conversation.findById(conversationID).populate("members").populate("memberCandidates").populate("notPermitted").populate({
+//         path: "messages",
+//         populate: {
+//             path: "sentBy"
+//         }
+//     }).exec((_, conversation) => {
+//         if (conversation) {
+//             const isMember = conversation.members.some(member => member.equals(userID));
+//             if (isMember) {
+//                 const newMessage = new Message({
+//                     content: message,
+//                     sentBy: userID
+//                 });
+//                 conversation.messages.push(newMessage);
+//                 newMessage.save().then(() => {
+//                     conversation.save().then(() => {
+//                         res.json({
+//                             conversation
+//                         })
+//                     });
+//                 });
+//             } else {
+//                 res.status(401);
+//             }
+//         } else {
+//             res.status(400);
+//         }
+//     });
+// });
+
+io.on("connection", socket => {
     const {
-        message
-    } = req.body;
-    const conversationID = req.body._id;
-    const userID = req.user._id;
-    console.log(userID);
-    Conversation.findById(conversationID).populate("members").populate("memberCandidates").populate("notPermitted").populate({
-        path: "messages",
-        populate: {
-            path: "sentBy"
-        }
-    }).exec((_, conversation) => {
-        if (conversation) {
-            const isMember = conversation.members.some(member => member.equals(userID));
-            if (isMember) {
-                const newMessage = new Message({
-                    content: message,
-                    sentBy: userID
+        passport
+    } = socket.request.session;
+    if (passport) {
+        const {
+            user
+        } = passport;
+        if (user) {
+            socket.on("newMessage", data => {
+                const {
+                    _id,
+                    message
+                } = data;
+                Conversation.findById(_id).populate("members").populate("memberCandidates").populate("notPermitted").populate({
+                    path: "messages",
+                    populate: {
+                        path: "sentBy"
+                    }
+                }).exec((_, conversation) => {
+                    if (conversation) {
+                        const isMember = conversation.members.some(member => member.equals(user));
+                        if (isMember) {
+                            User.findById(user).then(sentByUser => {
+                                const newMessage = new Message({
+                                    content: message,
+                                    sentBy: sentByUser
+                                });
+                                newMessage.save().then(() => {
+                                    conversation.messages.push(newMessage);
+                                    conversation.save().then(() => {
+                                        io.sockets.emit("updatedConversation", conversation);
+                                    });
+                                });
+                            });
+                        }
+                    }
                 });
-                conversation.messages.push(newMessage);
-                newMessage.save().then(() => {
-                    conversation.save().then(() => {
-                        res.json({
-                            conversation
-                        })
-                    });
-                });
-            } else {
-                res.status(401);
-            }
-        } else {
-            res.status(400);
+            });
         }
-    });
+    }
 });

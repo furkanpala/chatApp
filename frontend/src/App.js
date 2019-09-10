@@ -14,6 +14,7 @@ import DashboardRoute from "./routes/dashboardRoute";
 import HomeRoute from "./routes/homeRoute";
 import ChatRoute from "./routes/chatRoute";
 import Chat from "./components/chat";
+import { withRouter } from "react-router-dom";
 
 // prettier-ignore
 const errors = [
@@ -89,7 +90,13 @@ class App extends Component {
 
   handleChange = ({ target: { name, value } }) => {
     this.setState({
-      [name]: value
+      [name]: value.substr(0, 200)
+    });
+  };
+
+  clearActiveConversation = () => {
+    this.setState({
+      activeConversation: null
     });
   };
 
@@ -341,7 +348,7 @@ class App extends Component {
       axios.get("/getConversationList").then(res => {
         const { conversations } = res.data;
         this.setState({
-          conversationList: conversations
+          conversationList: conversations.reverse()
         });
       });
     }, 1000);
@@ -388,18 +395,16 @@ class App extends Component {
     });
   };
 
-  sendMessage = () => {
+  sendMessage = socket => {
+    this.setState({
+      message: ""
+    });
     const {
       message,
       activeConversation: { _id }
     } = this.state;
-    if (message.length < 200) {
-      axios.post("/newMessage", { message, _id }).then(res => {
-        console.log(res.data);
-        this.setState({
-          message: ""
-        });
-      });
+    if (message.length < 200 && message.trim() !== "") {
+      socket.emit("newMessage", { message, _id });
     }
   };
 
@@ -411,7 +416,38 @@ class App extends Component {
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
-    return diffMin;
+    const diffMonth = Math.floor(diffDay / 30);
+    if (diffMin === 0) {
+      return "now";
+    }
+    if (diffMin === 1) {
+      return "1 minute ago";
+    }
+    if (diffMin < 60) {
+      return `${diffMin} minutes ago`;
+    }
+    if (diffHour === 1) {
+      return "1 hour ago";
+    }
+    if (diffHour < 24) {
+      return `${diffHour} hours ago`;
+    }
+    if (diffDay === 1) {
+      return "1 day ago";
+    }
+    if (diffDay < 30) {
+      return `${diffDay} days ago`;
+    }
+    if (diffMonth === 1) {
+      return "1 month ago";
+    }
+    if (diffDay >= 30) {
+      return `${diffMonth} months ago`;
+    }
+  };
+
+  updateConversation = conversation => {
+    this.setState({ activeConversation: conversation });
   };
 
   render() {
@@ -443,7 +479,9 @@ class App extends Component {
               goToConversation: this.goToConversation,
               newUser: this.newUser,
               sendMessage: this.sendMessage,
-              calculateTimesAgo: this.calculateTimesAgo
+              calculateTimesAgo: this.calculateTimesAgo,
+              updateConversation: this.updateConversation,
+              clearActiveConversation: this.clearActiveConversation
             }}
           >
             <ThemeProvider theme={theme}>
@@ -481,12 +519,10 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(props => <App {...props} />);
 
 /*TODO:
  * conversation oluşturma katılma silme text fieldlarında value değeri yok bunu incele.
- * socket bağla
- * socket ile express sessionu paylaş
  * entera basınca mesajı yolla
  * entera basınca mesajı mı yollasın alt satıra mı geçsin anahtar koy
  * chat mesajları çubuğunun otomatik aşağı inmesini sağla

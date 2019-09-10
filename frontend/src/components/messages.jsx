@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Box } from "@material-ui/core";
 import ChatBubble from "./chatBubble";
 import { makeStyles } from "@material-ui/core/styles";
@@ -16,6 +16,14 @@ const useStyles = makeStyles({
 
 const Messages = () => {
   const classes = useStyles();
+  const endMessagesRef = useRef();
+  useEffect(() => {
+    if (endMessagesRef.current) {
+      endMessagesRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  });
+  // Scroll to bottom solution from https://stackoverflow.com/questions/37620694/how-to-scroll-to-bottom-in-react and https://stackoverflow.com/questions/56086130/reactjs-how-to-scroll-to-an-element-with-hooks-functions
+
   return (
     <Consumer>
       {({ activeConversation, authenticatedUser, calculateTimesAgo }) => (
@@ -33,6 +41,7 @@ const Messages = () => {
                   createdAt={message.createdAt}
                 />
               ))}
+              <div ref={endMessagesRef}></div>
             </Box>
           )}
         </>

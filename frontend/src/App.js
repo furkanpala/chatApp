@@ -523,12 +523,9 @@ export default withRouter(props => <App {...props} />);
 
 /*TODO:
  * conversation oluşturma katılma silme text fieldlarında value değeri yok bunu incele.
- * entera basınca mesajı yolla
  * entera basınca mesajı mı yollasın alt satıra mı geçsin anahtar koy
- * chat mesajları çubuğunun otomatik aşağı inmesini sağla
  * gruptan çıkma işlemini düzelt
  * admin gruptan çıkmak isterse birine adminliği devretsin
  * eğer devredecek kimse yoksa grup silinsin
- * mesaj max uzunluğu 200 olarak databasede belirlendi bunu frontend e uygula
- * sadece " " oluşan mesajları kabul etme (trim uygula)
+ * şu an sadece tek boşluk bırakabiliyorsun ve alt satıra inemiyorsun
  */

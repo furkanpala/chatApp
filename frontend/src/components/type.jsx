@@ -44,7 +44,13 @@ const Type = ({ socket }) => {
             multiline
             value={message}
             rowsMax="3"
-            onKeyUp={e => (e.keyCode === 13 ? console.log("enter") : null)} //TODO: enter ile yolla
+            // Send on enter solution from https://github.com/mui-org/material-ui/issues/5393 #SuEric
+            onKeyPress={e => {
+              if (e.key === "Enter") {
+                sendMessage(socket);
+                e.preventDefault();
+              }
+            }}
             onChange={onChange}
           />
           <Button
